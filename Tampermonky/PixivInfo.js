@@ -1,19 +1,18 @@
 // ==UserScript==
 // @name         PixivInfo
 // @namespace    http://tampermonkey.net/
-// @version      2.4
+// @version      2.5
 // @description  查看本地是否存在该图片
 // @author       Lapis_lwy
 // @match        *://www.pixiv.net/artworks/*
 // @match        *://danbooru.donmai.us/posts/*
-// @match        https://learn.scriptcat.org/*
 // @icon         https://www.pixiv.net/favicon.ico
 // @grant        GM_xmlhttpRequest
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @connect      file.125114.xyz
-// @updateURL    https://raw.githubusercontent.com/Lapis-lwy/Tampermonky/refs/heads/main/PixivInfo.js
-// @downloadURL  https://raw.githubusercontent.com/Lapis-lwy/Tampermonky/refs/heads/main/PixivInfo.js
+// @updateURL    https://raw.githubusercontent.com/Lapis-lwy/Script/refs/heads/main/Tampermonky/PixivInfo.js
+// @downloadURL  https://raw.githubusercontent.com/Lapis-lwy/Script/refs/heads/main/Tampermonky/PixivInfo.js
 // ==/UserScript==
 let _wr = function (type) {
     let orig = history[type];
@@ -192,3 +191,4 @@ function sendReq(url,flag,picId){
 function pixiv(url,pixivId){
     return sendReq(url,0,pixivId);
 }
+
