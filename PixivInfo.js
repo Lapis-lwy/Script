@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PixivInfo
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      2.1
 // @description  查看本地是否存在该图片
 // @author       Lapis_lwy
 // @match        *://www.pixiv.net/artworks/*
@@ -70,80 +70,85 @@ async function login(url){
 
 (function() {
     'use strict';
-    GM_setValue("auth","");
-    let url="https://file.125114.xyz:27567/api/";
-    let div = document.createElement("div");
-    div.style.backgroundColor="white";
-    if(GM_getValue("status")===1){
-        div.innerHTML="<label><input type=\"radio\" name=\"pic\" value=\"pc\" style=\"width:14px;height:14px\"> <font size=\"3\">横图</font></label>    <label><input type=\"radio\" name=\"pic\" value=\"mobile\" style=\"width:14px;height:14px\" checked> <font size=\"3\">纵图</font></label>    "
-    }else{
-        div.innerHTML="<label><input type=\"radio\" name=\"pic\" value=\"pc\" style=\"width:14px;height:14px\" checked> <font size=\"3\">横图</font></label>    <label><input type=\"radio\" name=\"pic\" value=\"mobile\" style=\"width:14px;height:14px\"> <font size=\"3\">纵图</font></label>    "
-        GM_setValue("status",0);
-    }
-    let loginUiElem = loginUi(url,div);
-    document.body.prepend(div);
-    let tip=document.createElement("h2");
-    tip.align="center";
-    tip.style.margin="0px";
-    tip.style.padding="12px";
-    let clickEvent=function(url,direction,tip){
-        if (GM_getValue("auth")===""){
-            tip.textContent="⚠️您还未登录！";
-            div.append(tip);
-            return;
+    window.addEventListener('pushState', function (e) {
+        console.warn(
+        href changed to ${window.location.href}
+        ); 
+        GM_setValue("auth","");
+        let url="https://file.125114.xyz:27567/api/";
+        let div = document.createElement("div");
+        div.style.backgroundColor="white";
+        if(GM_getValue("status")===1){
+            div.innerHTML="<label><input type=\"radio\" name=\"pic\" value=\"pc\" style=\"width:14px;height:14px\"> <font size=\"3\">横图</font></label>    <label><input type=\"radio\" name=\"pic\" value=\"mobile\" style=\"width:14px;height:14px\" checked> <font size=\"3\">纵图</font></label>    "
+        }else{
+            div.innerHTML="<label><input type=\"radio\" name=\"pic\" value=\"pc\" style=\"width:14px;height:14px\" checked> <font size=\"3\">横图</font></label>    <label><input type=\"radio\" name=\"pic\" value=\"mobile\" style=\"width:14px;height:14px\"> <font size=\"3\">纵图</font></label>    "
+            GM_setValue("status",0);
         }
-        search(url+"search/",direction).then(()=>{
-            if (GM_getValue("download")===0){
-                tip.textContent="✔️本图片尚未下载";
-                tip.style.color="green";
+        let loginUiElem = loginUi(url,div);
+        document.body.prepend(div);
+        let tip=document.createElement("h2");
+        tip.align="center";
+        tip.style.margin="0px";
+        tip.style.padding="12px";
+        let clickEvent=function(url,direction,tip){
+            if (GM_getValue("auth")===""){
+                tip.textContent="⚠️您还未登录！";
+                div.append(tip);
+                return;
             }
-            if (GM_getValue("download")===1){
-                tip.textContent="❌️本图片已下载";
-                tip.style.color="red";
-            }
-        })
+            search(url+"search/",direction).then(()=>{
+                if (GM_getValue("download")===0){
+                    tip.textContent="✔️本图片尚未下载";
+                    tip.style.color="green";
+                }
+                if (GM_getValue("download")===1){
+                    tip.textContent="❌️本图片已下载";
+                    tip.style.color="red";
+                }
+            })
 
-    }
-    let loginEvent=()=>{
-        if(noneArr.includes(GM_getValue("username")) || noneArr.includes(GM_getValue("password"))){
-            GM_setValue("username",loginUiElem.userElem.value);
-            GM_setValue("password",loginUiElem.passwordElem.value);
         }
-        login(url).then((res)=>{
-            loginUiElem.loginElem.innerHTML="";
-            let suc=document.createElement("h3");
-            suc.textContent="登录成功！";
-            suc.style.color="green";
-            loginUiElem.loginElem.append(suc);
-            loginUiElem.loginElem.style.display="block";
-            clickEvent(url,div.getElementsByTagName("input")[GM_getValue("status")].value,tip);
-        },(rej)=>{
-            if(rej=="502"){
-                alert("服务器异常，请稍后重试！");
-            }else alert("用户名或密码错误！");
-            loginUiElem.loginElem.style.display="block";
-            GM_setValue("username","");
-            GM_setValue("password","");
-        });
-    }
-    if(!noneArr.includes(GM_getValue("username")) && !noneArr.includes(GM_getValue("password"))){
-        loginEvent();
-    }
-    clickEvent(url,div.getElementsByTagName("input")[GM_getValue("status")].value,tip);
-    loginUiElem.buttonElem.onclick=()=>{
-        if(loginUiElem.userElem.value==="" || loginUiElem.passwordElem.value===""){
-            alert("输入框为空！");
-            return;
+        let loginEvent=()=>{
+            if(noneArr.includes(GM_getValue("username")) || noneArr.includes(GM_getValue("password"))){
+                GM_setValue("username",loginUiElem.userElem.value);
+                GM_setValue("password",loginUiElem.passwordElem.value);
+            }
+            login(url).then((res)=>{
+                loginUiElem.loginElem.innerHTML="";
+                let suc=document.createElement("h3");
+                suc.textContent="登录成功！";
+                suc.style.color="green";
+                loginUiElem.loginElem.append(suc);
+                loginUiElem.loginElem.style.display="block";
+                clickEvent(url,div.getElementsByTagName("input")[GM_getValue("status")].value,tip);
+            },(rej)=>{
+                if(rej=="502"){
+                    alert("服务器异常，请稍后重试！");
+                }else alert("用户名或密码错误！");
+                loginUiElem.loginElem.style.display="block";
+                GM_setValue("username","");
+                GM_setValue("password","");
+            });
         }
-        loginEvent();
-    };
-    div.onclick = (event)=>{
-        if(event.target.value===undefined) return;
-        if(event.target.value==="pc") GM_setValue("status",0);
-        if(event.target.value==="mobile") GM_setValue("status",1);
-        clickEvent(url,event.target.value,tip);
-    };
-    div.append(tip);
+        if(!noneArr.includes(GM_getValue("username")) && !noneArr.includes(GM_getValue("password"))){
+            loginEvent();
+        }
+        clickEvent(url,div.getElementsByTagName("input")[GM_getValue("status")].value,tip);
+        loginUiElem.buttonElem.onclick=()=>{
+            if(loginUiElem.userElem.value==="" || loginUiElem.passwordElem.value===""){
+                alert("输入框为空！");
+                return;
+            }
+            loginEvent();
+        };
+        div.onclick = (event)=>{
+            if(event.target.value===undefined) return;
+            if(event.target.value==="pc") GM_setValue("status",0);
+            if(event.target.value==="mobile") GM_setValue("status",1);
+            clickEvent(url,event.target.value,tip);
+        };
+        div.append(tip);    
+    }
 })();
 async function search(url,direction){
     let flag=-1;
@@ -182,6 +187,7 @@ function sendReq(url,flag,picId,direction){
 function pixiv(url,pixivId,direction){
     return sendReq(url,0,pixivId,direction);
 }
+
 
 
 
