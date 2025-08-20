@@ -28,7 +28,6 @@ let _wr = function (type) {
 let noneArr=[undefined,""];
 function loginUi(url,div){
     let log=document.createElement("div");
-    log.style.cssFloat = 'right';
     log.id="login";
     let userTip=document.createElement("font");
     userTip.size=3;
@@ -82,12 +81,6 @@ function infoUi(div){
     let url="https://file.125114.xyz:27567/api/";
     div.style.backgroundColor="white";
     div.id="infoDisplay";
-    if(GM_getValue("status")===1){
-        div.innerHTML="<label><input type=\"radio\" name=\"pic\" value=\"pc\" style=\"width:14px;height:14px\"> <font size=\"3\">横图</font></label>    <label><input type=\"radio\" name=\"pic\" value=\"mobile\" style=\"width:14px;height:14px\" checked> <font size=\"3\">纵图</font></label>    "
-    }else{
-        div.innerHTML="<label><input type=\"radio\" name=\"pic\" value=\"pc\" style=\"width:14px;height:14px\" checked> <font size=\"3\">横图</font></label>    <label><input type=\"radio\" name=\"pic\" value=\"mobile\" style=\"width:14px;height:14px\"> <font size=\"3\">纵图</font></label>    "
-        GM_setValue("status",0);
-    }
     let loginUiElem = loginUi(url,div);
     document.body.prepend(div);
     let tip=document.createElement("h2");
@@ -95,12 +88,12 @@ function infoUi(div){
     tip.style.margin="0px";
     tip.style.padding="12px";
     div.append(tip);
-    let clickEvent=function(url,direction,tip){
+    let clickEvent=function(url,tip){
         if (noneArr.includes(GM_getValue("username")) || noneArr.includes(GM_getValue("password"))){
             tip.textContent="⚠️您还未登录！";
             return;
         }
-        search(url+"search/",direction).then(()=>{
+        search(url+"search/").then(()=>{
             if (GM_getValue("download")===0){
                 tip.textContent="✔️本图片尚未下载";
                 tip.style.color="green";
@@ -120,10 +113,12 @@ function infoUi(div){
             loginUiElem.loginElem.innerHTML="";
             let suc=document.createElement("h3");
             suc.textContent="登录成功！";
+            suc.style.margin="0px";
+            suc.style.padding="12px";
             suc.style.color="green";
             loginUiElem.loginElem.append(suc);
             loginUiElem.loginElem.style.display="block";
-            clickEvent(url,div.getElementsByTagName("input")[GM_getValue("status")].value,tip);
+            clickEvent(url,tip);
         },(rej)=>{
             if(rej=="502"){
                 alert("服务器异常，请稍后重试！");
@@ -140,7 +135,7 @@ function infoUi(div){
     if(!noneArr.includes(GM_getValue("username")) && !noneArr.includes(GM_getValue("password"))){
         loginEvent();
     }
-    clickEvent(url,div.getElementsByTagName("input")[GM_getValue("status")].value,tip);
+    clickEvent(url,tip);
     loginUiElem.buttonElem.onclick=()=>{
         if(loginUiElem.userElem.value==="" || loginUiElem.passwordElem.value===""){
             alert("输入框为空！");
@@ -148,12 +143,6 @@ function infoUi(div){
         }
         loginEvent();
         };
-    div.onclick = (event)=>{
-        if(event.target.value===undefined) return;
-        if(event.target.value==="pc") GM_setValue("status",0);
-        if(event.target.value==="mobile") GM_setValue("status",1);
-        clickEvent(url,event.target.value,tip);
-    }; 
 }
 (function() {
     'use strict';
@@ -166,7 +155,7 @@ function infoUi(div){
         infoUi(div);
     }
 )})();
-async function search(url,direction){
+async function search(url){
     let flag=-1;
     let picId;
     if(window.location.hostname=="www.pixiv.net"){
@@ -176,16 +165,16 @@ async function search(url,direction){
         let fullUrl=document.querySelector("#post-info-source").textContent;
         if(fullUrl.split(" ").at(1).split("/").at(0)==="pixiv.net"){//Pixiv来源
             picId=fullUrl.split(" ").at(1).split("/").at(-1).split(" ").at(0);
-            await pixiv(url,picId,direction);
+            await pixiv(url,picId);
             if (GM_getValue("download")===1) return await new Promise(res=>{res()});
         }
         picId=document.querySelector("#image").src.split("sample-").at(-1).split(".").at(0);
     }
-    return await sendReq(url,flag,picId,direction);
+    return await sendReq(url,flag,picId);
 }
-function sendReq(url,flag,picId,direction){
+function sendReq(url,flag,picId){
     return new Promise (res=>{
-        GM_xmlhttpRequest({method:"GET",url:url+direction+"/?query="+picId,headers:{
+        GM_xmlhttpRequest({method:"GET",url:url+"/?query="+picId,headers:{
             "x-auth":GM_getValue("auth")
         },onload:(response)=>{
             let arr=new Set(JSON.parse(response.responseText).map(function(elem){return elem.path.split("_").at(flag).split(".").at(0).split("/").at(-1)}));
@@ -200,7 +189,6 @@ function sendReq(url,flag,picId,direction){
             res();
         }})
     })}
-function pixiv(url,pixivId,direction){
-    return sendReq(url,0,pixivId,direction);
+function pixiv(url,pixivId){
+    return sendReq(url,0,pixivId);
 }
-
