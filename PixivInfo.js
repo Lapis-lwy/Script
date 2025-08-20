@@ -91,13 +91,12 @@ function infoUi(div){
     let loginUiElem = loginUi(url,div);
     document.body.prepend(div);
     let tip=document.createElement("h2");
-    tip.style.display="none";
     tip.align="center";
     tip.style.margin="0px";
     tip.style.padding="12px";
     div.append(tip);
     let clickEvent=function(url,direction,tip){
-        if (GM_getValue("auth")===""){
+        if (noneArr.includes(GM_getValue("username")) || noneArr.includes(GM_getValue("password"))){
             tip.textContent="⚠️您还未登录！";
             return;
         }
@@ -105,12 +104,10 @@ function infoUi(div){
             if (GM_getValue("download")===0){
                 tip.textContent="✔️本图片尚未下载";
                 tip.style.color="green";
-                tip.style.display="block";
             }
             if (GM_getValue("download")===1){
                 tip.textContent="❌️本图片已下载";
                 tip.style.color="red";
-                tip.style.display="block";
             }
         })
     }
@@ -130,10 +127,14 @@ function infoUi(div){
         },(rej)=>{
             if(rej=="502"){
                 alert("服务器异常，请稍后重试！");
-            }else alert("用户名或密码错误！");
-            loginUiElem.loginElem.style.display="block";
-            GM_setValue("username","");
-            GM_setValue("password","");
+                return;
+            }
+            if(rej=="403"){
+                alert("用户名或密码错误！");
+                loginUiElem.loginElem.style.display="block";
+                GM_setValue("username","");
+                GM_setValue("password","");
+            }
         });
     }
     if(!noneArr.includes(GM_getValue("username")) && !noneArr.includes(GM_getValue("password"))){
@@ -202,17 +203,3 @@ function sendReq(url,flag,picId,direction){
 function pixiv(url,pixivId,direction){
     return sendReq(url,0,pixivId,direction);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
