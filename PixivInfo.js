@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PixivInfo
 // @namespace    http://tampermonkey.net/
-// @version      2.1
+// @version      2.2
 // @description  查看本地是否存在该图片
 // @author       Lapis_lwy
 // @match        *://www.pixiv.net/artworks/*
@@ -72,7 +72,7 @@ async function login(url){
     'use strict';
     window.addEventListener('pushState', function (e) {
         console.warn(
-        href changed to ${window.location.href}
+        "href changed to"+ window.location.href
         ); 
         GM_setValue("auth","");
         let url="https://file.125114.xyz:27567/api/";
@@ -149,7 +149,7 @@ async function login(url){
         };
         div.append(tip);    
     }
-})();
+)})();
 async function search(url,direction){
     let flag=-1;
     let picId;
@@ -187,6 +187,7 @@ function sendReq(url,flag,picId,direction){
 function pixiv(url,pixivId,direction){
     return sendReq(url,0,pixivId,direction);
 }
+
 
 
 
