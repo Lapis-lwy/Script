@@ -48,7 +48,7 @@ function loginUi(url,div){
     passTip.textContent="密码：";
     log.append(passTip);
     let passwd=document.createElement("input");
-    passwd.type="text";
+    passwd.type="password";
     passwd.id="password";
     passwd.placeholder="请输入密码";
     log.append(passwd);
@@ -203,3 +203,4 @@ function sendReq(url,flag,picId,direction){
 function pixiv(url,pixivId,direction){
     return sendReq(url,0,pixivId,direction);
 }
+
