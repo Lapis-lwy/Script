@@ -160,6 +160,7 @@ function infoUi(div){
     window.addEventListener('pushState', function (e) {
         console.warn("href changed to "+ window.location.href); 
         div.innerHTML="";
+        infoUi(div);
     }
 )})();
 async function search(url,direction){
@@ -199,6 +200,7 @@ function sendReq(url,flag,picId,direction){
 function pixiv(url,pixivId,direction){
     return sendReq(url,0,pixivId,direction);
 }
+
 
 
 
