@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PixivInfo
 // @namespace    http://tampermonkey.net/
-// @version      2.3
+// @version      2.4
 // @description  查看本地是否存在该图片
 // @author       Lapis_lwy
 // @match        *://www.pixiv.net/artworks/*
@@ -91,23 +91,26 @@ function infoUi(div){
     let loginUiElem = loginUi(url,div);
     document.body.prepend(div);
     let tip=document.createElement("h2");
+    tip.style.display="none";
     tip.align="center";
     tip.style.margin="0px";
     tip.style.padding="12px";
+    div.append(tip);
     let clickEvent=function(url,direction,tip){
         if (GM_getValue("auth")===""){
             tip.textContent="⚠️您还未登录！";
-            div.append(tip);
             return;
         }
         search(url+"search/",direction).then(()=>{
             if (GM_getValue("download")===0){
                 tip.textContent="✔️本图片尚未下载";
                 tip.style.color="green";
+                tip.style.display="block";
             }
             if (GM_getValue("download")===1){
                 tip.textContent="❌️本图片已下载";
                 tip.style.color="red";
+                tip.style.display="block";
             }
         })
     }
@@ -149,8 +152,7 @@ function infoUi(div){
         if(event.target.value==="pc") GM_setValue("status",0);
         if(event.target.value==="mobile") GM_setValue("status",1);
         clickEvent(url,event.target.value,tip);
-    };
-    div.append(tip); 
+    }; 
 }
 (function() {
     'use strict';
@@ -200,6 +202,7 @@ function sendReq(url,flag,picId,direction){
 function pixiv(url,pixivId,direction){
     return sendReq(url,0,pixivId,direction);
 }
+
 
 
 
