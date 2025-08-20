@@ -15,6 +15,16 @@
 // @updateURL    https://raw.githubusercontent.com/Lapis-lwy/Tampermonky/refs/heads/main/PixivInfo.js
 // @downloadURL  https://raw.githubusercontent.com/Lapis-lwy/Tampermonky/refs/heads/main/PixivInfo.js
 // ==/UserScript==
+let _wr = function (type) {
+    let orig = history[type];
+    return function () {
+        let rv = orig.apply(this, arguments);
+        let e = new Event(type);
+        e.arguments = arguments;
+        window.dispatchEvent(e);
+        return rv;
+    };
+};
 let noneArr=[undefined,""];
 function loginUi(url,div){
     let log=document.createElement("div");
@@ -70,6 +80,7 @@ async function login(url){
 
 (function() {
     'use strict';
+    history.pushState = _wr('pushState');
     window.addEventListener('pushState', function (e) {
         console.warn(
         "href changed to"+ window.location.href
@@ -187,6 +198,7 @@ function sendReq(url,flag,picId,direction){
 function pixiv(url,pixivId,direction){
     return sendReq(url,0,pixivId,direction);
 }
+
 
 
 
