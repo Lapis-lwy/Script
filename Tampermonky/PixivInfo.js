@@ -24,171 +24,178 @@ let _wr = function (type) {
         return rv;
     };
 };
-let noneArr=[undefined,""];
-function loginUi(url,div){
-    let log=document.createElement("div");
-    log.id="login";
-    let userTip=document.createElement("font");
-    userTip.size=3;
-    userTip.textContent="用户名：";
+let noneArr = [undefined, ""];
+function loginUi(url, div) {
+    let log = document.createElement("div");
+    log.id = "login";
+    let userTip = document.createElement("lable");
+    userTip.textContent = "用户名：";
+    userTip.style.fontSize = "16px";
     log.append(userTip);
-    let user=document.createElement("input");
-    user.type="text";
-    user.id="username";
-    user.placeholder="请输入用户名";
+    let user = document.createElement("input");
+    user.type = "text";
+    user.id = "username";
+    user.placeholder = "请输入用户名";
+    userTip.htmlFor = "username";
     log.append(user);
-    let space=document.createElement("font");
-    space.size=3;
-    space.textContent="  ";
+    let space = document.createElement("lable");
+    space.style.fontSize = "16px";
+    space.textContent = "  ";
     log.append(space);
-    let passTip=document.createElement("font");
-    passTip.size=3;
-    passTip.textContent="密码：";
+    let passTip = document.createElement("lable");
+    passTip.style.fontSize = "16px";
+    passTip.textContent = "密码：";
     log.append(passTip);
-    let passwd=document.createElement("input");
-    passwd.type="password";
-    passwd.id="password";
-    passwd.placeholder="请输入密码";
+    let passwd = document.createElement("input");
+    passwd.type = "password";
+    passwd.id = "password";
+    passwd.placeholder = "请输入密码";
+    passTip.htmlFor = "password";
     log.append(passwd);
-    log.style.display="none";
-    let btn=document.createElement("button");
-    btn.innerHTML="登录";
+    log.style.display = "none";
+    let btn = document.createElement("button");
+    btn.innerHTML = "登录";
     log.append(btn);
-    if(noneArr.includes(GM_getValue("username")) || noneArr.includes(GM_getValue("password"))){
-        log.style.display="block";
+    if (noneArr.includes(GM_getValue("username")) || noneArr.includes(GM_getValue("password"))) {
+        log.style.display = "block";
     }
     div.append(log);
-    return {userElem:user,passwordElem:passwd,buttonElem:btn,loginElem:log}
+    return { userElem: user, passwordElem: passwd, buttonElem: btn, loginElem: log }
 }
-async function login(url){
+async function login(url) {
     //登录
-    return await new Promise((res,rej)=>{
-        GM_xmlhttpRequest({method:"POST",url:url+"login",data:'{"username":"'+GM_getValue("username")+'","password":"'+GM_getValue("password")+'","recaptcha":""}',
-                           onload:(response)=>{
-                               if(response.responseText.trim()==="403 Forbidden" || response.status=="502"){
-                                   rej(response.status);
-                               }else {
-                                   GM_setValue("auth",response.responseText);
-                                   res();
-                               }
-                           }
-                          });
+    return await new Promise((res, rej) => {
+        GM_xmlhttpRequest({
+            method: "POST", url: url + "login", data: '{"username":"' + GM_getValue("username") + '","password":"' + GM_getValue("password") + '","recaptcha":""}',
+            onload: (response) => {
+                if (response.responseText.trim() === "403 Forbidden" || response.status == "502") {
+                    rej(response.status);
+                } else {
+                    GM_setValue("auth", response.responseText);
+                    res();
+                }
+            }
+        });
     });
 }
-function infoUi(div){
-    GM_setValue("auth","");
-    let url="https://file.125114.xyz:27567/api/";
-    div.style.backgroundColor="white";
-    div.id="infoDisplay";
-    let loginUiElem = loginUi(url,div);
+function infoUi(div) {
+    GM_setValue("auth", "");
+    let url = "https://file.125114.xyz:27567/api/";
+    div.style.backgroundColor = "white";
+    div.id = "infoDisplay";
+    let loginUiElem = loginUi(url, div);
     document.body.prepend(div);
-    let tip=document.createElement("h2");
-    tip.align="center";
-    tip.style.margin="0px";
-    tip.style.padding="12px";
+    let tip = document.createElement("h2");
+    tip.align = "center";
+    tip.style.margin = "0px";
+    tip.style.padding = "12px";
     div.append(tip);
-    let clickEvent=function(url,tip){
-        if (noneArr.includes(GM_getValue("username")) || noneArr.includes(GM_getValue("password"))){
-            tip.textContent="⚠️您还未登录！";
+    let clickEvent = function (url, tip) {
+        if (noneArr.includes(GM_getValue("username")) || noneArr.includes(GM_getValue("password"))) {
+            tip.textContent = "⚠️您还未登录！";
             return;
         }
-        search(url+"search/").then(()=>{
-            if (GM_getValue("download")===0){
-                tip.textContent="✔️本图片尚未下载";
-                tip.style.color="green";
+        search(url + "search/").then(() => {
+            if (GM_getValue("download") === 0) {
+                tip.textContent = "✔️本图片尚未下载";
+                tip.style.color = "green";
             }
-            if (GM_getValue("download")===1){
-                tip.textContent="❌️本图片已下载";
-                tip.style.color="red";
+            if (GM_getValue("download") === 1) {
+                tip.textContent = "❌️本图片已下载";
+                tip.style.color = "red";
             }
         })
     }
-    let loginEvent=()=>{
-        if(noneArr.includes(GM_getValue("username")) || noneArr.includes(GM_getValue("password"))){
-            GM_setValue("username",loginUiElem.userElem.value);
-            GM_setValue("password",loginUiElem.passwordElem.value);
+    let loginEvent = () => {
+        if (noneArr.includes(GM_getValue("username")) || noneArr.includes(GM_getValue("password"))) {
+            GM_setValue("username", loginUiElem.userElem.value);
+            GM_setValue("password", loginUiElem.passwordElem.value);
         }
-        login(url).then((res)=>{
-            loginUiElem.loginElem.innerHTML="";
-            let suc=document.createElement("h3");
-            suc.textContent="登录成功！";
-            suc.style.margin="0px";
-            suc.style.padding="12px";
-            suc.style.color="green";
+        login(url).then((res) => {
+            loginUiElem.loginElem.innerHTML = "";
+            let suc = document.createElement("h3");
+            suc.textContent = "登录成功！";
+            suc.style.margin = "0px";
+            suc.style.padding = "12px";
+            suc.style.color = "green";
             loginUiElem.loginElem.append(suc);
-            loginUiElem.loginElem.style.display="block";
-            clickEvent(url,tip);
-        },(rej)=>{
-            if(rej=="502"){
+            loginUiElem.loginElem.style.display = "block";
+            clickEvent(url, tip);
+        }, (rej) => {
+            if (rej == "502") {
                 alert("服务器异常，请稍后重试！");
                 return;
             }
-            if(rej=="403"){
+            if (rej == "403") {
                 alert("用户名或密码错误！");
-                loginUiElem.loginElem.style.display="block";
-                GM_setValue("username","");
-                GM_setValue("password","");
+                loginUiElem.loginElem.style.display = "block";
+                GM_setValue("username", "");
+                GM_setValue("password", "");
             }
         });
     }
-    if(!noneArr.includes(GM_getValue("username")) && !noneArr.includes(GM_getValue("password"))){
+    if (!noneArr.includes(GM_getValue("username")) && !noneArr.includes(GM_getValue("password"))) {
         loginEvent();
     }
-    clickEvent(url,tip);
-    loginUiElem.buttonElem.onclick=()=>{
-        if(loginUiElem.userElem.value==="" || loginUiElem.passwordElem.value===""){
+    clickEvent(url, tip);
+    loginUiElem.buttonElem.onclick = () => {
+        if (loginUiElem.userElem.value === "" || loginUiElem.passwordElem.value === "") {
             alert("输入框为空！");
             return;
         }
         loginEvent();
-        };
+    };
 }
-(function() {
+(function () {
     'use strict';
     let div = document.createElement("div");
     infoUi(div);
     history.pushState = _wr('pushState');
     window.addEventListener('pushState', function (e) {
-        console.warn("href changed to "+ window.location.href); 
-        div.innerHTML="";
+        console.warn("href changed to " + window.location.href);
+        div.innerHTML = "";
         infoUi(div);
     }
-)})();
-async function search(url){
-    let flag=-1;
+    )
+})();
+async function search(url) {
+    let flag = -1;
     let picId;
-    if(window.location.hostname=="www.pixiv.net"){
+    if (window.location.hostname == "www.pixiv.net") {
         flag++;
-        picId=window.location.href.split("/").at(-1);
-    }else{
-        let fullUrl=document.querySelector("#post-info-source").textContent;
-        if(fullUrl.split(" ").at(1).split("/").at(0)==="pixiv.net"){//Pixiv来源
-            picId=fullUrl.split(" ").at(1).split("/").at(-1).split(" ").at(0);
-            await pixiv(url,picId);
-            if (GM_getValue("download")===1) return await new Promise(res=>{res()});
+        picId = window.location.href.split("/").at(-1);
+    } else {
+        let fullUrl = document.querySelector("#post-info-source").textContent;
+        if (fullUrl.split(" ").at(1).split("/").at(0) === "pixiv.net") {//Pixiv来源
+            picId = fullUrl.split(" ").at(1).split("/").at(-1).split(" ").at(0);
+            await pixiv(url, picId);
+            if (GM_getValue("download") === 1) return await new Promise(res => { res() });
         }
-        picId=document.querySelector("#image").src.split("sample-").at(-1).split(".").at(0);
+        picId = document.querySelector("#image").src.split("sample-").at(-1).split(".").at(0);
     }
-    return await sendReq(url,flag,picId);
+    return await sendReq(url, flag, picId);
 }
-function sendReq(url,flag,picId){
-    return new Promise (res=>{
-        GM_xmlhttpRequest({method:"GET",url:url+"/?query="+picId,headers:{
-            "x-auth":GM_getValue("auth")
-        },onload:(response)=>{
-            let arr=new Set(JSON.parse(response.responseText).map(function(elem){return elem.path.split("_").at(flag).split(".").at(0).split("/").at(-1)}));
-            console.log(arr);
-            GM_setValue("download",0);
-            for(let elem of arr){
-                if(elem===picId) {
-                    GM_setValue("download",1);
-                    break;//检查id是否完全相等，有些id是另一个id的一部分
+function sendReq(url, flag, picId) {
+    return new Promise(res => {
+        GM_xmlhttpRequest({
+            method: "GET", url: url + "/?query=" + picId, headers: {
+                "x-auth": GM_getValue("auth")
+            }, onload: (response) => {
+                let arr = new Set(JSON.parse(response.responseText).map(function (elem) { return elem.path.split("_").at(flag).split(".").at(0).split("/").at(-1) }));
+                console.log(arr);
+                GM_setValue("download", 0);
+                for (let elem of arr) {
+                    if (elem === picId) {
+                        GM_setValue("download", 1);
+                        break;//检查id是否完全相等，有些id是另一个id的一部分
+                    }
                 }
+                res();
             }
-            res();
-        }})
-    })}
-function pixiv(url,pixivId){
-    return sendReq(url,0,pixivId);
+        })
+    })
+}
+function pixiv(url, pixivId) {
+    return sendReq(url, 0, pixivId);
 }
 
