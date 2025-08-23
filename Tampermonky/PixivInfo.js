@@ -146,18 +146,6 @@ function infoUi(div) {
         loginEvent();
     };
 }
-(function () {
-    'use strict';
-    let div = document.createElement("div");
-    infoUi(div);
-    history.pushState = _wr('pushState');
-    window.addEventListener('pushState', function (e) {
-        console.warn("href changed to " + window.location.href);
-        div.innerHTML = "";
-        infoUi(div);
-    }
-    )
-})();
 async function search(url) {
     let flag = -1;
     let picId;
@@ -199,3 +187,15 @@ function pixiv(url, pixivId) {
     return sendReq(url, 0, pixivId);
 }
 
+(function () {
+    'use strict';
+    let div = document.createElement("div");
+    infoUi(div);
+    history.pushState = _wr('pushState');
+    window.addEventListener('pushState', function (e) {
+        console.warn("href changed to " + window.location.href);
+        div.innerHTML = "";
+        infoUi(div);
+    }
+    )
+})();

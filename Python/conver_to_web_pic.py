@@ -21,7 +21,7 @@ def process_images(input_folder, output_folder):
     for filename in os.listdir(input_folder):
         if os.path.exists(os.path.join(output_folder, os.path.splitext(filename)[0] + ".webp")):
             continue
-        if filename.endswith(('.jpg', '.jpeg', '.png','.jfif')):
+        if filename.endswith(('.jpg', '.jpeg', '.png','.jfif',".webp")):
             image_path = os.path.join(input_folder, filename)
             try:
                 convert_to_webp(image_path, output_folder)
@@ -33,8 +33,6 @@ input_folder_pc = "/vol3/1000/Image/pc"
 input_folder_mobile = "/vol3/1000/Image/mobile"
 output_folder_pc = "/vol3/1000/Image/web-pc"
 output_folder_mobile = "/vol3/1000/Image/web-mobile"
-
-
 
 # 执行转换
 process_images(input_folder_pc+"/Normal", output_folder_pc+"/Normal")
