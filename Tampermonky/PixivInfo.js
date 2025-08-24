@@ -159,7 +159,10 @@ async function search(url) {
             await pixiv(url, picId);
             if (GM_getValue("download") === 1) return await new Promise(res => { res() });
         }
-        picId = document.querySelector("#image").src.split("_").at(-1).split(".").at(0);
+        if(document.querySelector("#image").src.split("/")[3]==="sample")
+            picId = document.querySelector("#image").src.split("-").at(-1).split(".").at(0);
+        else
+            picId = document.querySelector("#image").src.split("_").at(-1).split(".").at(0);
     }
     return await sendReq(url, flag, picId);
 }
