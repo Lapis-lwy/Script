@@ -120,24 +120,21 @@ function infoUi(div) {
             suc.style.color = "green";
             loginUiElem.loginElem.append(suc);
             loginUiElem.loginElem.style.display = "block";
-            clickEvent(url, tip);
         }, (rej) => {
             if (rej == "502") {
                 alert("服务器异常，请稍后重试！");
                 return;
             }
             if (rej == "403") {
-                alert("用户名或密码错误！");
+                if (!noneArr.includes(GM_getValue("username")) && !noneArr.includes(GM_getValue("password")))
+                    alert("用户名或密码错误！");
                 loginUiElem.loginElem.style.display = "block";
                 GM_setValue("username", "");
                 GM_setValue("password", "");
             }
-        });
+        }).finally(() => clickEvent(url, tip));
     }
-    if (!noneArr.includes(GM_getValue("username")) && !noneArr.includes(GM_getValue("password"))) {
-        loginEvent();
-    }
-    clickEvent(url, tip);
+    loginEvent();
     loginUiElem.buttonElem.onclick = () => {
         if (loginUiElem.userElem.value === "" || loginUiElem.passwordElem.value === "") {
             alert("输入框为空！");
@@ -159,7 +156,7 @@ async function search(url) {
             await pixiv(url, picId);
             if (GM_getValue("download") === 1) return await new Promise(res => { res() });
         }
-        if(document.querySelector("#image").src.split("/")[3]==="sample")
+        if (document.querySelector("#image").src.split("/")[3] === "sample")
             picId = document.querySelector("#image").src.split("-").at(-1).split(".").at(0);
         else
             picId = document.querySelector("#image").src.split("_").at(-1).split(".").at(0);
