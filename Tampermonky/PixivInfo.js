@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PixivInfo
 // @namespace    http://tampermonkey.net/
-// @version      2.5
+// @version      2.6
 // @description  查看本地是否存在该图片
 // @author       Lapis_lwy
 // @match        *://www.pixiv.net/artworks/*
@@ -63,6 +63,8 @@ function loginUi(url, div) {
     return { userElem: user, passwordElem: passwd, buttonElem: btn, loginElem: log }
 }
 async function login(url) {
+    if (noneArr.includes(GM_getValue("username")) || noneArr.includes(GM_getValue("password")))
+        return await new Promise((res, rej) => rej("-1"));
     //登录
     return await new Promise((res, rej) => {
         GM_xmlhttpRequest({
@@ -126,11 +128,13 @@ function infoUi(div) {
                 return;
             }
             if (rej == "403") {
-                if (!noneArr.includes(GM_getValue("username")) && !noneArr.includes(GM_getValue("password")))
-                    alert("用户名或密码错误！");
+                alert("用户名或密码错误！");
                 loginUiElem.loginElem.style.display = "block";
                 GM_setValue("username", "");
                 GM_setValue("password", "");
+            }
+            if (rej == "-1") {
+                loginUiElem.loginElem.style.display = "block";
             }
         }).finally(() => clickEvent(url, tip));
     }
